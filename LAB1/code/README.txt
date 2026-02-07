@@ -1,7 +1,17 @@
-INSTRUCTIONS FOR SERIAL PORT PROTOCOL
+First Project - Computer Network
 =====================================
 
-This folder contains the base code of the serial port protocol.
+## Project Description
+
+This project implements a **reliable point-to-point communication system over a serial link (RS-232)** using the C programming language. It was developed in the context of the **RCOM (Computer Networks)** course to explore how reliable data transfer can be achieved at the **Data Link Layer** over an unreliable physical medium.
+
+The system configures and manages a serial port using **non-canonical mode**, handling low-level details such as baud rate configuration, timeouts, and signal control. On top of the physical connection, a custom **data link layer protocol** is implemented to ensure correctness and reliability.
+
+Key mechanisms include **frame delimitation**, **error detection**, and a **Stop-and-Wait Automatic Repeat reQuest (ARQ)** strategy. Data frames are acknowledged by the receiver, and lost or corrupted frames are retransmitted after a timeout. This allows the system to reliably transmit data even in the presence of communication errors.
+
+The project supports the **transfer of files between two endpoints**, where one node acts as a sender and the other as a receiver. The receiver reconstructs the transmitted file using the received frames, ensuring data integrity and correct ordering.
+
+Through this project, core networking concepts such as **layered protocol design**, **flow control**, **error handling**, and **serial communication** are explored in a practical and hands-on manner.
 
 Project Structure
 -----------------
