@@ -1,17 +1,140 @@
-First project - Computer Network
-=====================================
+# Reliable Serial Communication System (Data Link Layer Implementation)
 
-## Project Description
+## Overview
 
-This project implements a **reliable point-to-point communication system over a serial link (RS-232)** using the C programming language. It was developed in the context of the **RCOM (Computer Networks)** course to explore how reliable data transfer can be achieved at the **Data Link Layer** over an unreliable physical medium.
+This project implements a reliable point-to-point communication system over an RS-232 serial link in C, developed within the Computer Networks (RCOM) course.
 
-The system configures and manages a serial port using **non-canonical mode**, handling low-level details such as baud rate configuration, timeouts, and signal control. On top of the physical connection, a custom **data link layer protocol** is implemented to ensure correctness and reliability.
+The objective was to design and implement a custom Data Link Layer protocol capable of ensuring reliable file transmission over an unreliable physical medium.
 
-Key mechanisms include **frame delimitation**, **error detection**, and a **Stop-and-Wait Automatic Repeat reQuest (ARQ)** strategy. Data frames are acknowledged by the receiver, and lost or corrupted frames are retransmitted after a timeout. This allows the system to reliably transmit data even in the presence of communication errors.
+The implementation operates close to the hardware layer, requiring manual handling of framing, timeouts, retransmissions, and error control mechanisms.
 
-The project supports the **transfer of files between two endpoints**, where one node acts as a sender and the other as a receiver. The receiver reconstructs the transmitted file using the received frames, ensuring data integrity and correct ordering.
+---
 
-Through this project, core networking concepts such as **layered protocol design**, **flow control**, **error handling**, and **serial communication** are explored in a practical and hands-on manner.
+## System Architecture
+
+The system follows a layered architecture:
+
+- **Physical Layer** – RS-232 serial communication  
+- **Data Link Layer** – Custom reliable protocol  
+- **Application Layer** – File segmentation and reconstruction  
+
+The serial port is configured using non-canonical mode, allowing fine-grained control over:
+
+- Baud rate
+- Timeout behavior
+- Signal handling
+- Blocking/non-blocking reads
+- Error detection
+
+---
+
+## Protocol Design
+
+The protocol ensures reliability using a Stop-and-Wait Automatic Repeat reQuest (ARQ) strategy, where only one frame is transmitted at a time and must be acknowledged before sending the next.
+
+### Key Mechanisms
+
+- Frame delimitation using flag bytes  
+- Byte stuffing to prevent misinterpretation of control flags inside payload  
+- Sequence numbering for frame tracking  
+- Acknowledgment frames (RR/REJ)  
+- Timeout and retransmission logic  
+- Error detection using BCC fields  
+
+These mechanisms ensure correctness even under:
+
+- Frame corruption  
+- Packet loss  
+- Artificial noise injection  
+- Cable disconnections  
+
+---
+
+## Protocol Phases
+
+### 1. Connection Establishment
+
+The transmitter initiates communication by sending a SET control frame.  
+The receiver responds with UA, confirming synchronization.
+
+### 2. Data Transfer
+
+- The file is segmented into packets.
+- Each packet is encapsulated into a frame.
+- Frames are transmitted sequentially.
+- The receiver validates integrity and responds with:
+  - RR (Receive Ready) – Frame accepted  
+  - REJ (Reject) – Frame corrupted, retransmission required  
+
+The Stop-and-Wait mechanism guarantees ordered and reliable delivery.
+
+### 3. Connection Termination
+
+After successful transmission:
+
+- Both endpoints exchange DISC frames.
+- A final UA confirms proper session termination.
+
+---
+
+## Interface (Application ↔ Link Layer)
+
+The protocol exposes a clean API to the application layer:
+
+- `llopen()` – Establishes the serial connection and performs handshake  
+- `llwrite()` – Encapsulates and transmits data frames  
+- `llread()` – Receives, validates, and extracts data  
+- `llclose()` – Closes the connection and reports transmission statistics  
+
+This separation reinforces proper layered architecture design.
+
+---
+
+## Testing and Fault Tolerance
+
+The project includes a virtual cable simulator that allows:
+
+- Injecting random noise  
+- Simulating cable disconnections  
+- Testing retransmission robustness  
+
+Validation is performed by:
+
+- Comparing transmitted and received files using `diff`  
+- Monitoring retransmission counts  
+- Evaluating protocol behavior under stress conditions  
+
+---
+
+## Technical Highlights
+
+- Low-level UNIX serial port programming  
+- Use of `termios` for device configuration  
+- Signal-based timeout handling (`alarm()`)  
+- Finite-state machine implementation for frame parsing  
+- Robust error handling and retransmission logic  
+- Clean separation between protocol and application layers  
+
+---
+
+## Development Environment
+
+- Language: C  
+- Operating System: Linux  
+- Communication: RS-232  
+- Tools: Makefile, diff, virtual cable simulator  
+
+---
+
+## Learning Outcomes
+
+Through this project, the following concepts were explored in depth:
+
+- Reliable data transfer over unreliable channels  
+- Flow control and error recovery mechanisms  
+- Framing and byte stuffing techniques  
+- Layered protocol architecture  
+- Systems programming and low-level device interaction  
 
 Project Structure
 -----------------
